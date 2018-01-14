@@ -27,8 +27,16 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 # (See http://opensource.org/licenses/BSD-2-Clause)
+
 """
-Computes the FIFO accounting valuation and stock inventory.
+Computes the FIFO accounting valuation and stock inventory.+
+Usage: python3 __init__.py transactions.csv
+
+transactions.csv:
+quantity, price
+1, 500
+2, 650
+-3, 800
 """
 
 import datetime
@@ -325,5 +333,11 @@ if __name__ == "__main__":
 
         ## Print trace:
         if not (len(sys.argv) > 2 and sys.argv[2] == "-q"):
-            for element in fifo.trace:
-                print("    ", ",".join(["(%s)" % (i,) for i in element]))
+            with open(sys.argv[1][:-4] + '_fifo.csv', 'w', newline='') as csvfile:
+                fifo_writer = csv.writer(csvfile, quoting=csv.QUOTE_MINIMAL)
+                fifo_writer.writerow(['quantity', 'buy_price', 'sell_price', 'result'])
+                
+                for element in fifo.trace:
+                    quantity, buy_price, sell_price = element[0].quantity, element[0].price, element[1].price
+                    result = quantity * sell_price - quantity * buy_price
+                    fifo_writer.writerow([element[0].quantity, element[0].price, element[1].price, result])
